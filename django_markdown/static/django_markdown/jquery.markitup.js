@@ -568,21 +568,28 @@
 				return false;
 			}
 			
-			function writeInPreview(data) {
-				if (options.previewInElement) {
-					$(options.previewInElement).html(data);
-				} else if (previewWindow && previewWindow.document) {			
-					try {
-						sp = previewWindow.document.documentElement.scrollTop
-					} catch(e) {
-						sp = 0;
-					}	
-					previewWindow.document.open();
-					previewWindow.document.write(data);
-					previewWindow.document.close();
-					previewWindow.document.documentElement.scrollTop = sp;
-				}
-			}
+      function writeInPreview(data) {
+        if (options.previewInElement) {
+          if (!$(options.previewInElement).is('iframe')) {
+            $(options.previewInElement).html(data);
+            return;
+          }
+          else {
+            previewWindow = $(options.previewInElement)[$(options.previewInElement).length - 1].contentWindow;
+          }
+        }
+        if (previewWindow && previewWindow.document) {
+          try {
+            sp = previewWindow.document.documentElement.scrollTop
+          } catch (e) {
+            sp = 0;
+          }
+          previewWindow.document.open();
+          previewWindow.document.write(data);
+          previewWindow.document.close();
+          previewWindow.document.documentElement.scrollTop = sp;
+        }
+      }
 			
 			// set keys pressed
 			function keyPressed(e) { 
