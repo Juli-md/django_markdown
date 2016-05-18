@@ -440,7 +440,13 @@
 					var newSelection = document.selection.createRange();
 					newSelection.text = block;
 				} else {
-					textarea.value =  textarea.value.substring(0, caretPosition)  + block + textarea.value.substring(caretPosition + selection.length, textarea.value.length);
+					var event = document.createEvent('TextEvent');
+					if (event.initTextEvent) {
+						event.initTextEvent('textInput', true, true, null, block);
+						textarea.dispatchEvent(event); // fire the event on the the textarea
+					} else {
+						textarea.value =  textarea.value.substring(0, caretPosition)  + block + textarea.value.substring(caretPosition + selection.length, textarea.value.length);
+					}
 				}
 			}
 
