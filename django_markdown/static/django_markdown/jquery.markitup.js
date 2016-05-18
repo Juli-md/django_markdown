@@ -215,10 +215,6 @@
 						.bind("contextmenu.markItUp", function() { // prevent contextmenu on mac and allow ctrl+click
 							return false;
 						}).bind('click.markItUp', function(e) {
-							e.preventDefault();
-						}).bind("focusin.markItUp", function(){
-                            $$.focus();
-						}).bind('mouseup', function() {
 							if (button.call) {
 								eval(button.call)();
 							}
