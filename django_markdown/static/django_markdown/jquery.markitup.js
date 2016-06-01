@@ -220,7 +220,7 @@
 							return false;
 						}).bind('click.markItUp', function(e) {
 							if (button.call) {
-								eval(button.call)();
+								eval(button.call).call($$);
 							}
 							setTimeout(function() { markup(button) },1);
 							return false;
