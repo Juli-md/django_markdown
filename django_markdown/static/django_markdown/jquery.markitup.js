@@ -12,10 +12,10 @@
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -132,8 +132,6 @@
 
 			// init and build editor
 			function init() {
-				$$.trigger('pre-init.markItUp');
-
 				id = ''; nameSpace = '';
 				if (options.id) {
 					id = 'id="'+options.id+'"';
@@ -196,8 +194,6 @@
 				if (options.previewInElement) {
 					refreshPreview();
 				}
-
-				$$.trigger('init.markItUp');
 			}
 
 			// recursively build header with dropMenus from markupset
@@ -219,8 +215,12 @@
 						.bind("contextmenu.markItUp", function() { // prevent contextmenu on mac and allow ctrl+click
 							return false;
 						}).bind('click.markItUp', function(e) {
+							e.preventDefault();
+						}).bind("focusin.markItUp", function(){
+                            $$.focus();
+						}).bind('mouseup', function() {
 							if (button.call) {
-								eval(button.call).call($$[0]);
+								eval(button.call)();
 							}
 							setTimeout(function() { markup(button) },1);
 							return false;
@@ -444,13 +444,7 @@
 					var newSelection = document.selection.createRange();
 					newSelection.text = block;
 				} else {
-					var event = document.createEvent('TextEvent');
-					if (event.initTextEvent) {
-						event.initTextEvent('textInput', true, true, null, block);
-						textarea.dispatchEvent(event); // fire the event on the the textarea
-					} else {
-						textarea.value =  textarea.value.substring(0, caretPosition)  + block + textarea.value.substring(caretPosition + selection.length, textarea.value.length);
-					}
+					textarea.value =  textarea.value.substring(0, caretPosition)  + block + textarea.value.substring(caretPosition + selection.length, textarea.value.length);
 				}
 			}
 
@@ -574,28 +568,21 @@
 				return false;
 			}
 
-      function writeInPreview(data) {
-        if (options.previewInElement) {
-          if (!$(options.previewInElement).is('iframe')) {
-            $(options.previewInElement).html(data);
-            return;
-          }
-          else {
-            previewWindow = $(options.previewInElement)[$(options.previewInElement).length - 1].contentWindow;
-          }
-        }
-        if (previewWindow && previewWindow.document) {
-          try {
-            sp = previewWindow.document.documentElement.scrollTop
-          } catch (e) {
-            sp = 0;
-          }
-          previewWindow.document.open();
-          previewWindow.document.write(data);
-          previewWindow.document.close();
-          previewWindow.document.documentElement.scrollTop = sp;
-        }
-      }
+			function writeInPreview(data) {
+				if (options.previewInElement) {
+					$(options.previewInElement).html(data);
+				} else if (previewWindow && previewWindow.document) {
+					try {
+						sp = previewWindow.document.documentElement.scrollTop
+					} catch(e) {
+						sp = 0;
+					}
+					previewWindow.document.open();
+					previewWindow.document.write(data);
+					previewWindow.document.close();
+					previewWindow.document.documentElement.scrollTop = sp;
+				}
+			}
 
 			// set keys pressed
 			function keyPressed(e) {
